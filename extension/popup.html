@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ScamShield</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <svg class="shield-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 5V11C4 16 7.5 20.5 12 22C16.5 20.5 20 16 20 11V5L12 2Z" stroke="#e0983a" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 2V22" stroke="#e0983a" stroke-width="1.2" opacity="0.5"/>
+        </svg>
+        <div>
+          <div class="brand-name">ScamShield</div>
+          <div class="brand-meta"><span class="dot"></span>v1.0.0 · Active</div>
+        </div>
+      </div>
+      <span class="pill">Free</span>
+    </header>
+
+    <section class="card">
+      <div class="card-head">
+        <h1>Analyze job offer</h1>
+        <a href="#" id="tryExample" class="link">Try example</a>
+      </div>
+      <p class="muted">Paste the full email or message below</p>
+
+      <textarea id="offerText" placeholder="Paste the full job offer email or message here...&#10;e.g. Subject: Internship Opportunity at XYZ Corp&#10;Dear Candidate, We are pleased to offer you..."></textarea>
+
+      <p class="hint">Supports emails, WhatsApp messages, LinkedIn DMs</p>
+
+      <div class="badges">
+        <span class="badge">Registration fees</span>
+        <span class="badge">Urgency tactics</span>
+        <span class="badge">Free email domain</span>
+        <span class="badge">Sensitive documents</span>
+        <span class="badge">Guaranteed placement</span>
+      </div>
+
+      <button id="analyzeBtn"><i class="icon-clip"></i>Analyze offer</button>
+    </section>
+
+    <section id="loading" class="loading hidden">
+      <div class="scan-track"><div class="scan-fill"></div></div>
+      <p>Scanning for red flags...</p>
+    </section>
+
+    <section id="errorBox" class="error hidden"></section>
+
+    <section id="results" class="results hidden">
+      <div class="risk-meter">
+        <div class="risk-top">
+          <span id="riskWord">—</span>
+          <span id="riskScore">0/100</span>
+        </div>
+        <div class="risk-track"><div id="riskBarFill" class="risk-fill"></div></div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-row"><span class="k">Company</span><span class="v" id="valCompany">—</span></div>
+        <div class="data-row"><span class="k">Role</span><span class="v" id="valRole">—</span></div>
+        <div class="data-row"><span class="k">Stipend</span><span class="v" id="valStipend">—</span></div>
+        <div class="data-row"><span class="k">Email domain</span><span class="v" id="valDomain">—</span></div>
+      </div>
+
+      <h2>Findings</h2>
+      <ul id="findingsList" class="list"></ul>
+
+      <h2>Web mentions</h2>
+      <ul id="mentionsList" class="list"></ul>
+
+      <div class="report-block">
+        <button id="showReportForm" class="report-toggle">🚩 Report this company</button>
+        <div id="reportForm" class="report-form hidden">
+          <textarea id="reportReason" placeholder="What happened? (e.g. asked for payment, never responded after joining...)"></textarea>
+          <button id="submitReport">Submit report</button>
+          <p id="reportStatus" class="muted small hidden"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h3 class="section-title">What we check</h3>
+      <div class="checks-grid">
+        <div class="check-card">
+          <div class="check-icon">📋</div>
+          <div class="check-name">Detail extraction</div>
+          <div class="check-desc">Company, role, stipend, email domain, eligibility</div>
+        </div>
+        <div class="check-card">
+          <div class="check-icon">⚠</div>
+          <div class="check-name">Red flag scan</div>
+          <div class="check-desc">Fees, urgency, document requests, unverifiable claims</div>
+        </div>
+        <div class="check-card">
+          <div class="check-icon">🌐</div>
+          <div class="check-name">Web intelligence</div>
+          <div class="check-desc">Reddit complaints, scam reports, public mentions</div>
+        </div>
+        <div class="check-card">
+          <div class="check-icon">📊</div>
+          <div class="check-name">Risk scoring</div>
+          <div class="check-desc">0-100 score with itemized breakdown and verdict</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="recent-head">
+        <h3 class="section-title">Recent scans</h3>
+        <span class="muted small">This session</span>
+      </div>
+      <ul id="recentList" class="recent-list">
+        <li class="muted small">No scans yet this session.</li>
+      </ul>
+    </section>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

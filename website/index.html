@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ScamShield - Job Offer & Resume Checker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0d0e1a; --card: #171826; --card-2: #1c1d2e;
+  --border: rgba(255,255,255,0.08); --text: #e8e8f0; --text-muted: #8b8d9c;
+  --amber: #e0983a; --amber-soft: rgba(224,152,58,0.12);
+  --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+  --orange: #f0a83a; --orange-soft: rgba(240,168,58,0.12);
+  --red: #f0554a; --red-soft: rgba(240,85,74,0.12);
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px; }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-name { font-weight:700; font-size:24px; }
+.brand-meta { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+.dot { width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; }
+.pill { font-size:12px; color:var(--text-muted); border:1px solid var(--border); padding:5px 14px; border-radius:999px; }
+
+.tabs { display:flex; gap:8px; margin-bottom:20px; }
+.tab-btn {
+  flex:1; padding:12px; background:var(--card); border:1px solid var(--border);
+  color:var(--text-muted); border-radius:10px; font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:14px; cursor:pointer;
+}
+.tab-btn.active { background:var(--amber); color:#1a1200; border-color:var(--amber); }
+
+.card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px; }
+h1 { font-size:19px; font-weight:700; margin:0 0 4px; }
+.muted { color:var(--text-muted); font-size:13px; margin:0 0 14px; }
+
+textarea {
+  width:100%; height:140px; resize:vertical; padding:12px; font-family:'Space Grotesk',sans-serif;
+  font-size:13px; border:1px solid var(--border); background:var(--card-2); color:var(--text); border-radius:10px;
+  margin-bottom:12px;
+}
+label.field-label { font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px; }
+
+button.primary {
+  width:100%; padding:13px; background:var(--amber); color:#1a1200; border:none;
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; cursor:pointer; border-radius:10px;
+}
+button.primary:disabled { opacity:0.6; cursor:wait; }
+
+.hidden { display:none !important; }
+.loading { text-align:center; padding:16px 0; color:var(--text-muted); font-size:13px; }
+.error { padding:12px; background:var(--red-soft); border:1px solid var(--red); border-radius:10px; font-size:13px; margin-bottom:14px; }
+
+.risk-top { display:flex; justify-content:space-between; align-items:baseline; font-weight:700; font-size:19px; margin-bottom:8px; }
+.risk-track { height:9px; background:var(--card-2); border-radius:5px; overflow:hidden; margin-bottom:16px; }
+.risk-fill { height:100%; width:0%; transition:width 0.6s ease; }
+
+.data-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.data-row { background:var(--card-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+.data-row .k { font-size:11px; color:var(--text-muted); display:block; margin-bottom:2px; }
+.data-row .v { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:500; }
+
+h2 { font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px; }
+ul.list { list-style:none; margin:0 0 16px; padding:0; font-size:13px; }
+ul.list li { padding:8px 10px 8px 30px; position:relative; background:var(--card-2); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
+ul.list li.bad:before { content:"!"; position:absolute; left:12px; color:var(--red); font-weight:700; }
+ul.list li.ok:before { content:"✓"; position:absolute; left:12px; color:var(--green); }
+ul.list li a { color:var(--amber); text-decoration:none; }
+
+.score-badge { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; }
+.footer-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:24px; }
+.footer-note a { color:var(--amber); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg width="38" height="38" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 5V11C4 16 7.5 20.5 12 22C16.5 20.5 20 16 20 11V5L12 2Z" stroke="#e0983a" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <div>
+        <div class="brand-name">ScamShield</div>
+        <div class="brand-meta"><span class="dot"></span>v1.0.0 · Active</div>
+      </div>
+    </div>
+    <span class="pill">Free</span>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabOffer">Job Offer Checker</button>
+    <button class="tab-btn" id="tabResume">Resume Analyzer</button>
+  </div>
+
+  <!-- OFFER CHECKER TAB -->
+  <section id="offerSection">
+    <div class="card">
+      <h1>Analyze job offer</h1>
+      <p class="muted">Paste the full email or message below</p>
+      <textarea id="offerText" placeholder="Paste the full job offer email or message here..."></textarea>
+      <button class="primary" id="analyzeOfferBtn">Analyze offer</button>
+    </div>
+
+    <div id="offerLoading" class="loading hidden">Scanning for red flags...</div>
+    <div id="offerError" class="error hidden"></div>
+
+    <div id="offerResults" class="card hidden">
+      <div class="risk-top"><span id="riskWord">—</span><span id="riskScore" style="font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--text-muted); font-weight:400;">0/100</span></div>
+      <div class="risk-track"><div id="riskBarFill" class="risk-fill"></div></div>
+
+      <div class="data-grid">
+        <div class="data-row"><span class="k">Company</span><span class="v" id="valCompany">—</span></div>
+        <div class="data-row"><span class="k">Role</span><span class="v" id="valRole">—</span></div>
+        <div class="data-row"><span class="k">Stipend</span><span class="v" id="valStipend">—</span></div>
+        <div class="data-row"><span class="k">Email domain</span><span class="v" id="valDomain">—</span></div>
+      </div>
+
+      <h2>Findings</h2>
+      <ul id="findingsList" class="list"></ul>
+      <h2>Web mentions</h2>
+      <ul id="mentionsList" class="list"></ul>
+    </div>
+  </section>
+
+  <!-- RESUME ANALYZER TAB -->
+  <section id="resumeSection" class="hidden">
+    <div class="card">
+      <h1>Resume ↔ job match</h1>
+      <p class="muted">Paste your resume and the job description to see your fit</p>
+      <label class="field-label">Your resume</label>
+      <textarea id="resumeText" placeholder="Paste your resume text here..."></textarea>
+      <label class="field-label">Job description</label>
+      <textarea id="jobDescText" placeholder="Paste the job description here..."></textarea>
+      <button class="primary" id="analyzeResumeBtn">Analyze match</button>
+    </div>
+
+    <div id="resumeLoading" class="loading hidden">Comparing your resume to the role...</div>
+    <div id="resumeError" class="error hidden"></div>
+
+    <div id="resumeResults" class="card hidden">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+        <span class="score-badge" id="matchScore">—</span>
+        <span class="muted" id="matchSummary" style="margin:0;">—</span>
+      </div>
+      <h2>Matched skills</h2>
+      <ul id="matchedList" class="list"></ul>
+      <h2>Missing skills</h2>
+      <ul id="missingList" class="list"></ul>
+      <h2>Suggestions</h2>
+      <ul id="suggestionsList" class="list"></ul>
+    </div>
+  </section>
+
+  <p class="footer-note">Backend runs on your own server - your data isn't sent anywhere else. <a href="https://github.com/" target="_blank">View source</a></p>
+</div>
+
+<script>
+// Same-origin now that the website is served by the same Express backend.
+// window.location.origin means this works both locally (localhost:5000) and
+// once deployed (e.g. https://scamshield-backend.onrender.com) with no code change.
+const API_BASE = window.location.origin;
+
+// --- Tab switching ---
+const tabOffer = document.getElementById("tabOffer");
+const tabResume = document.getElementById("tabResume");
+const offerSection = document.getElementById("offerSection");
+const resumeSection = document.getElementById("resumeSection");
+
+tabOffer.addEventListener("click", () => {
+  tabOffer.classList.add("active"); tabResume.classList.remove("active");
+  offerSection.classList.remove("hidden"); resumeSection.classList.add("hidden");
+});
+tabResume.addEventListener("click", () => {
+  tabResume.classList.add("active"); tabOffer.classList.remove("active");
+  resumeSection.classList.remove("hidden"); offerSection.classList.add("hidden");
+});
+
+const RISK_COLORS = { low: "#4ade80", medium: "#f0a83a", high: "#f0554a" };
+
+// --- Offer analyzer ---
+document.getElementById("analyzeOfferBtn").addEventListener("click", async () => {
+  const text = document.getElementById("offerText").value.trim();
+  const loading = document.getElementById("offerLoading");
+  const errorBox = document.getElementById("offerError");
+  const results = document.getElementById("offerResults");
+
+  if (!text) { errorBox.textContent = "Paste the offer text first."; errorBox.classList.remove("hidden"); return; }
+
+  errorBox.classList.add("hidden"); results.classList.add("hidden"); loading.classList.remove("hidden");
+
+  try {
+    const res = await fetch(`${API_BASE}/api/analyze`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
+    const data = await res.json();
+    renderOfferResults(data);
+  } catch (err) {
+    errorBox.textContent = "Couldn't reach the analysis server. Is the backend running?";
+    errorBox.classList.remove("hidden");
+    console.error(err);
+  } finally {
+    loading.classList.add("hidden");
+  }
+});
+
+function renderOfferResults(data) {
+  const { extracted, riskScore, riskLevel, findings, mentions } = data;
+
+  document.getElementById("riskWord").textContent = `${riskLevel.toUpperCase()} RISK`;
+  document.getElementById("riskWord").style.color = RISK_COLORS[riskLevel];
+  document.getElementById("riskScore").textContent = `${riskScore}/100`;
+  const fill = document.getElementById("riskBarFill");
+  fill.style.width = `${riskScore}%`;
+  fill.style.background = RISK_COLORS[riskLevel];
+
+  document.getElementById("valCompany").textContent = extracted.company || "Not found";
+  document.getElementById("valRole").textContent = extracted.role || "Not found";
+  document.getElementById("valStipend").textContent = extracted.stipend || "Not found";
+  document.getElementById("valDomain").textContent = extracted.emailDomain || "Not found";
+
+  const findingsList = document.getElementById("findingsList");
+  findingsList.innerHTML = "";
+  findings.forEach((f) => {
+    const li = document.createElement("li");
+    li.textContent = f.message;
+    li.classList.add(f.severity === "ok" ? "ok" : "bad");
+    findingsList.appendChild(li);
+  });
+
+  const mentionsList = document.getElementById("mentionsList");
+  mentionsList.innerHTML = "";
+  if (mentions.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "No public mentions found.";
+    mentionsList.appendChild(li);
+  } else {
+    mentions.forEach((m) => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = m.url; a.target = "_blank"; a.textContent = m.title;
+      li.appendChild(a);
+      mentionsList.appendChild(li);
+    });
+  }
+
+  document.getElementById("offerResults").classList.remove("hidden");
+}
+
+// --- Resume analyzer ---
+document.getElementById("analyzeResumeBtn").addEventListener("click", async () => {
+  const resumeText = document.getElementById("resumeText").value.trim();
+  const jobDescText = document.getElementById("jobDescText").value.trim();
+  const loading = document.getElementById("resumeLoading");
+  const errorBox = document.getElementById("resumeError");
+  const results = document.getElementById("resumeResults");
+
+  if (resumeText.length < 50) { errorBox.textContent = "Paste your full resume text (at least 50 characters)."; errorBox.classList.remove("hidden"); return; }
+  if (jobDescText.length < 20) { errorBox.textContent = "Paste the job description (at least 20 characters)."; errorBox.classList.remove("hidden"); return; }
+
+  errorBox.classList.add("hidden"); results.classList.add("hidden"); loading.classList.remove("hidden");
+
+  try {
+    const res = await fetch(`${API_BASE}/api/analyze-resume`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resumeText, jobDescriptionText: jobDescText }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
+    renderResumeResults(data);
+  } catch (err) {
+    errorBox.textContent = err.message || "Couldn't analyze the resume right now.";
+    errorBox.classList.remove("hidden");
+    console.error(err);
+  } finally {
+    loading.classList.add("hidden");
+  }
+});
+
+function renderResumeResults(data) {
+  const { matchScore, summary, matchedSkills, missingSkills, suggestions } = data;
+
+  const scoreEl = document.getElementById("matchScore");
+  scoreEl.textContent = `${matchScore}%`;
+  scoreEl.style.color = matchScore >= 70 ? "#4ade80" : matchScore >= 40 ? "#f0a83a" : "#f0554a";
+  document.getElementById("matchSummary").textContent = summary;
+
+  fillList("matchedList", matchedSkills, "ok");
+  fillList("missingList", missingSkills, "bad");
+  fillList("suggestionsList", suggestions, "bad");
+
+  document.getElementById("resumeResults").classList.remove("hidden");
+}
+
+function fillList(id, items, cls) {
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  if (!items || items.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "None found.";
+    el.appendChild(li);
+    return;
+  }
+  items.forEach((text) => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    li.classList.add(cls);
+    el.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>
