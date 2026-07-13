@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ScamShield - Docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0d0e1a; --card: #171826; --card-2: #1c1d2e;
+  --border: rgba(255,255,255,0.08); --text: #e8e8f0; --text-muted: #8b8d9c;
+  --amber: #e0983a; --green: #4ade80;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; line-height:1.6; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 60px; }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+.brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); }
+.brand-name { font-weight:700; font-size:22px; }
+.pill { font-size:12px; color:var(--text-muted); border:1px solid var(--border); padding:5px 14px; border-radius:999px; text-decoration:none; }
+
+h1 { font-size:26px; margin:0 0 6px; }
+h2 { font-size:18px; margin:36px 0 10px; padding-top:16px; border-top:1px solid var(--border); }
+h3 { font-size:14px; color:var(--amber); margin:20px 0 8px; text-transform:uppercase; letter-spacing:0.5px; }
+p { color:var(--text-muted); font-size:14px; margin:0 0 12px; }
+.lead { font-size:15px; color:var(--text); }
+
+code { font-family:'JetBrains Mono',monospace; background:var(--card-2); padding:2px 6px; border-radius:4px; font-size:12.5px; color:var(--amber); }
+pre {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px;
+  color:var(--text); margin:0 0 16px;
+}
+pre code { background:none; padding:0; color:inherit; }
+
+table { width:100%; border-collapse:collapse; margin-bottom:16px; font-size:13px; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+th { color:var(--text-muted); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+
+.badge-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+.badge {
+  font-size:11px; color:var(--text-muted); background:var(--card); border:1px solid var(--border);
+  padding:5px 10px; border-radius:999px;
+}
+.free { color:var(--green); }
+
+ul { color:var(--text-muted); font-size:14px; padding-left:20px; }
+li { margin-bottom:6px; }
+a { color:var(--amber); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 5V11C4 16 7.5 20.5 12 22C16.5 20.5 20 16 20 11V5L12 2Z" stroke="#e0983a" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span class="brand-name">ScamShield</span>
+    </a>
+    <a href="index.html" class="pill">← Back to app</a>
+  </header>
+
+  <h1>Documentation</h1>
+  <p class="lead">A rule-based, explainable scam-risk scorer for job/internship offers, plus an AI resume-to-job matcher. Built as a Chrome extension + website sharing one backend.</p>
+
+  <h2>Tech stack</h2>
+  <div class="badge-row">
+    <span class="badge">Node.js + Express</span>
+    <span class="badge">MongoDB Atlas</span>
+    <span class="badge">Manifest V3 (Chrome)</span>
+    <span class="badge free">Gemini API — free tier</span>
+    <span class="badge free">RDAP — free, no key</span>
+    <span class="badge free">Google Custom Search — free tier</span>
+    <span class="badge">Docker</span>
+    <span class="badge">GitHub Actions CI/CD</span>
+  </div>
+
+  <h2>Architecture</h2>
+  <p>One Express backend serves three clients: the Chrome extension popup, this website, and (indirectly) MongoDB for persistence. Every risk score is <strong style="color:var(--text)">explainable</strong> — a weighted, rule-based scorer, not a black-box model — so every point can be traced to a specific finding.</p>
+  <pre><code>Offer text
+   │
+   ├─► Regex extraction (company, role, stipend, red flags)
+   │      │
+   │      └─► low confidence? ─► Gemini fallback (structured JSON)
+   │
+   ├─► Domain age check (RDAP)
+   ├─► LinkedIn presence check (Google Custom Search)
+   ├─► Community reports (MongoDB)
+   ├─► Reddit mentions (mocked - see note below)
+   │
+   └─► Weighted scorer ─► 0-100 risk score + itemized findings</code></pre>
+
+  <h2>API reference</h2>
+
+  <h3>POST /api/analyze</h3>
+  <p>Analyzes a job/internship offer for scam risk.</p>
+  <pre><code>// Request
+{ "text": "Full offer email or message text..." }
+
+// Response
+{
+  "extracted": {
+    "company": "BrightFuture Info Pvt Ltd",
+    "role": "Data Entry Intern",
+    "stipend": "45000 per month",
+    "eligibility": null,
+    "emailDomain": "gmail.com"
+  },
+  "extractionMethod": "regex" | "regex+llm",
+  "riskScore": 80,
+  "riskLevel": "low" | "medium" | "high",
+  "findings": [{ "severity": "bad" | "ok", "message": "..." }],
+  "mentions": [{ "title": "...", "url": "..." }]
+}</code></pre>
+
+  <h3>POST /api/report</h3>
+  <p>Submits a user report about a company - factored into future risk scores for that company.</p>
+  <pre><code>// Request
+{ "companyName": "BrightFuture Info Pvt Ltd", "reason": "Asked for a fee, never responded after paying." }
+
+// Response
+{ "success": true, "totalReports": 3 }</code></pre>
+
+  <h3>POST /api/analyze-resume</h3>
+  <p>Scores how well a resume matches a job description. Requires <code>GEMINI_API_KEY</code> - no regex fallback exists for this feature.</p>
+  <pre><code>// Request
+{ "resumeText": "...", "jobDescriptionText": "..." }
+
+// Response
+{
+  "matchScore": 82,
+  "summary": "...",
+  "matchedSkills": ["..."],
+  "missingSkills": ["..."],
+  "suggestions": ["..."]
+}</code></pre>
+
+  <h2>Scoring model</h2>
+  <p>Each signal adds a fixed or capped point value to a 0-100 score, with a human-readable finding attached to every point. This is a deliberate choice over a trained ML model: every score is traceable to a specific, explainable reason.</p>
+  <table>
+    <tr><th>Signal</th><th>Max points</th></tr>
+    <tr><td>Free email domain</td><td>30</td></tr>
+    <tr><td>Red-flag phrases (fees, urgency, etc.)</td><td>15 each</td></tr>
+    <tr><td>Missing stipend / role</td><td>10-15</td></tr>
+    <tr><td>Scam mentions found online</td><td>30</td></tr>
+    <tr><td>User-submitted reports</td><td>25</td></tr>
+    <tr><td>Domain registered &lt;30 days ago</td><td>25</td></tr>
+    <tr><td>No LinkedIn presence found</td><td>15</td></tr>
+  </table>
+
+  <h2>A note on data sources</h2>
+  <p>Reddit tightened non-commercial API approval mid-project, so <code>redditSearch.js</code> currently returns realistic mock data instead of live results. The real OAuth implementation is preserved in <code>redditSearch.live.js</code> and documented as a one-file swap once access is approved. See the <a href="https://github.com/codewithtrisha09/scam-shield" target="_blank">GitHub repo</a> README for full details.</p>
+
+  <h2>Why this matters</h2>
+  <p>Recent survey data shows this isn't a niche problem: 93% of Indian job seekers report encountering fraudulent postings, and Gen Z respondents were disproportionately affected - 46% reported losing money to recruitment scams. <a href="https://www.business-standard.com/industry/news/job-scam-fears-indians-ignore-work-opportunities-indeed-report-126070900929_1.html" target="_blank">Source: Indeed survey via Business Standard, July 2026</a></p>
+
+  <h2>Source</h2>
+  <p>Full source code, setup instructions, and contribution guidelines: <a href="https://github.com/codewithtrisha09/scam-shield" target="_blank">github.com/codewithtrisha09/scam-shield</a></p>
+
+</div>
+</body>
+</html>

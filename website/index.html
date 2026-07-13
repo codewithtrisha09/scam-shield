@@ -26,6 +26,23 @@ body { margin:0; background:var(--bg); color:var(--text); font-family:'Space Gro
 .dot { width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; }
 .pill { font-size:12px; color:var(--text-muted); border:1px solid var(--border); padding:5px 14px; border-radius:999px; }
 
+.stats-banner {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;
+  margin-bottom:6px;
+}
+.stat-item {
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:16px 14px; text-align:center;
+}
+.stat-num { font-size:26px; font-weight:700; color:var(--amber); font-family:'JetBrains Mono',monospace; }
+.stat-label { font-size:11px; color:var(--text-muted); margin-top:4px; line-height:1.4; }
+.stats-source { font-size:11px; color:var(--text-muted); text-align:center; margin:0 0 20px; }
+.stats-source a { color:var(--amber); }
+
+@media (max-width: 560px) {
+  .stats-banner { grid-template-columns:1fr; }
+}
+
 .tabs { display:flex; gap:8px; margin-bottom:20px; }
 .tab-btn {
   flex:1; padding:12px; background:var(--card); border:1px solid var(--border);
@@ -87,8 +104,27 @@ ul.list li a { color:var(--amber); text-decoration:none; }
         <div class="brand-meta"><span class="dot"></span>v1.0.0 · Active</div>
       </div>
     </div>
-    <span class="pill">Free</span>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <a href="docs.html" class="pill" style="text-decoration:none; cursor:pointer;">Docs</a>
+      <span class="pill">Free</span>
+    </div>
   </header>
+
+  <div class="stats-banner">
+    <div class="stat-item">
+      <div class="stat-num">93%</div>
+      <div class="stat-label">of Indian job seekers have encountered a fraudulent job posting</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">46%</div>
+      <div class="stat-label">of Gen Z job seekers reported losing money to recruitment scams</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">51%</div>
+      <div class="stat-label">aren't confident they can tell a real recruiter from a scammer</div>
+    </div>
+  </div>
+  <p class="stats-source">Source: <a href="https://www.business-standard.com/industry/news/job-scam-fears-indians-ignore-work-opportunities-indeed-report-126070900929_1.html" target="_blank">Indeed survey, reported by Business Standard, July 2026</a></p>
 
   <div class="tabs">
     <button class="tab-btn active" id="tabOffer">Job Offer Checker</button>
