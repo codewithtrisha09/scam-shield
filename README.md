@@ -1,39 +1,57 @@
 # ScamShield
 
-A browser extension that checks job/internship offers for scam red flags:
-missing stipend, free-email domains posing as "official" HR, upfront fee
-requests, and public Reddit complaints about the company.
+A full-stack scam-detection tool for students job-hunting: a Chrome
+extension and a website that check job/internship offers for scam red
+flags (missing stipend, free-email domains posing as "official" HR,
+upfront fee requests, suspiciously new domains, crowdsourced reports),
+plus an AI resume-to-job-description matcher.
 
 ## Project structure
 
 ```
 scam-shield/
-├── extension/          Chrome extension (Manifest V3)
+├── extension/              Chrome extension (Manifest V3)
 │   ├── manifest.json
 │   ├── popup.html/css/js
 │   ├── background.js
 │   └── icons/
-├── backend/             Node + Express + MongoDB API
+├── website/                 Static site (offer checker + resume analyzer)
+│   └── index.html            served by the backend, same dark theme
+├── backend/                  Node + Express + MongoDB API
 │   ├── server.js
-│   ├── routes/analyze.js
-│   ├── utils/extractor.js    (regex field extraction)
-│   ├── utils/scorer.js       (weighted risk scoring)
-│   ├── utils/redditSearch.js (Reddit OAuth + search)
-│   └── models/Company.js     (Mongo cache schema)
+│   ├── routes/
+│   │   ├── analyze.js         scam-offer analysis
+│   │   ├── report.js          user-submitted company reports
+│   │   └── resumeAnalyze.js   resume ↔ job-description matching
+│   ├── utils/
+│   │   ├── extractor.js       regex field extraction
+│   │   ├── scorer.js          weighted risk scoring
+│   │   ├── llmExtractor.js    Gemini extraction fallback
+│   │   ├── resumeAnalyzer.js  Gemini resume matching
+│   │   ├── domainAge.js       RDAP domain-age check
+│   │   ├── linkedinCheck.js   LinkedIn presence via Google Search
+│   │   └── redditSearch.js    mocked Reddit mentions (see below)
+│   ├── models/                Company.js, Report.js (Mongo schemas)
+│   ├── Dockerfile
+│   └── .dockerignore
+├── docker-compose.yml        one-command local dev (backend + Mongo)
+├── .github/workflows/ci-cd.yml   test → build Docker image → deploy
 └── README.md
 ```
 
 ## How it works
 
-1. User pastes offer text into the popup and hits **Analyze**.
-2. `popup.js` sends the text to `POST http://localhost:5000/api/analyze`.
+1. User pastes offer text into the popup (or website) and hits **Analyze**.
+2. The text is sent to `POST /api/analyze`.
 3. Backend extracts company name, role, stipend, email domain, and red-flag
-   phrases using regex (`extractor.js`).
-4. Backend checks MongoDB for a cached Reddit search on that company name;
-   if missing or older than 7 days, it re-searches Reddit and caches it.
+   phrases using regex (`extractor.js`); if that comes up mostly empty,
+   Gemini takes a second pass (`llmExtractor.js`).
+4. In parallel, the backend checks: cached/mocked Reddit mentions, your own
+   crowdsourced reports collection, the sender domain's registration age,
+   and whether the company has a findable LinkedIn page.
 5. `scorer.js` combines all signals into an explainable 0–100 risk score.
-6. Popup renders the score, extracted fields, findings, and any Reddit
-   mentions found.
+6. The UI renders the score, extracted fields, itemized findings, and any
+   mentions found - plus a button to report the company yourself.
 
 ## New features (all optional, all FREE - app works fine without any configured)
 
@@ -78,11 +96,15 @@ If unset, this check is just skipped.
 
 ### Website
 `website/index.html` is a single-file static site (same dark theme as the
-extension) with two tools: the job offer checker and a new resume analyzer.
-It's served directly by the Express backend (`server.js` now serves
-`website/` as static files), so there's only one thing to deploy - visiting
-your Render URL in a browser shows the website; the Chrome extension talks
-to the same backend's `/api/*` routes.
+extension) with two tools: the job offer checker and a resume analyzer,
+plus a stats banner citing real scam-prevalence survey data (with source
+link) to set context for why the tool matters. `website/docs.html` is a
+proper documentation page - architecture diagram, full API reference for
+all three endpoints, the scoring model's point breakdown, and a link to
+the GitHub repo. Both are served directly by the Express backend
+(`server.js` serves `website/` as static files), so there's only one thing
+to deploy - visiting your Render URL shows the website; the Chrome
+extension talks to the same backend's `/api/*` routes.
 
 ### Resume analyzer (new feature)
 `POST /api/analyze-resume` takes `{ resumeText, jobDescriptionText }` and
@@ -117,6 +139,15 @@ No extra setup needed for steps 1-2 - just push to GitHub and the Actions
 tab will show it running. Nothing here costs money; GitHub Actions is free
 for public repos with generous minutes, and GHCR image storage is free too.
 
+### Rate limiting
+All `/api/*` routes share one `express-rate-limit` instance (`server.js`):
+20 requests per 15 minutes per IP. This protects your free-tier Gemini and
+Google Search quotas from being exhausted by one runaway client. For a
+real production deployment, you'd likely want a separate, tighter limit
+specifically on `/api/analyze-resume`, since it's the most expensive call
+(larger prompt, more output tokens) - noted here as a known scaling
+consideration rather than something this project needed to solve.
+
 ## Reddit data layer — mocked for now
 
 Reddit tightened their non-commercial API approval process mid-project
@@ -147,19 +178,13 @@ string. Or run MongoDB locally if you have it installed:
 mongod --dbpath ./data
 ```
 
-### 2. Reddit API credentials (free)
-
-1. Go to https://www.reddit.com/prefs/apps
-2. Click "create app", choose type **script**
-3. Copy the client ID (under the app name) and secret
-
-### 3. Backend
+### 2. Backend
 
 ```bash
 cd backend
 npm install
 cp .env.example .env
-# edit .env with your MONGODB_URI and REDDIT_CLIENT_ID/SECRET
+# edit .env with your MONGODB_URI (only required value - everything else is optional, see "New features" above)
 npm run dev
 ```
 
@@ -176,7 +201,7 @@ curl -X POST http://localhost:5000/api/analyze \
   -d '{"text": "Company: BrightFuture Info Pvt Ltd. Role: Data Entry Intern. Stipend: 45000 per month. Please pay a refundable registration fee of 1500 to confirm your seat. Contact: hr.brightfuture@gmail.com"}'
 ```
 
-### 4. Load the extension in Chrome
+### 3. Load the extension in Chrome
 
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top right)
@@ -184,17 +209,18 @@ curl -X POST http://localhost:5000/api/analyze \
 4. Select the `extension/` folder
 5. Pin the ScamShield icon, click it, paste an offer, hit Analyze
 
-## Next steps to extend this (good for portfolio commits)
+## Ideas for further extension
 
-- Replace regex extraction with a Claude API call that returns structured
-  JSON — much more robust on messy real emails.
-- Add a domain-age/WHOIS check (free APIs exist) as another scoring signal.
-- Add a content script that auto-detects when you're viewing a Gmail message
-  and offers to prefill the popup, instead of manual copy-paste.
-- Deploy backend to Render/Railway free tier and update `API_BASE` in
-  `popup.js` before publishing to the Chrome Web Store.
-- Add a "Report this company" button that lets users flag companies
-  directly into your Mongo collection, building your own dataset over time.
+- Live Reddit data once API access is approved (see "Reddit data layer" above)
+- A content script that auto-detects when you're viewing a Gmail message and
+  offers to prefill the popup, instead of manual copy-paste
+- Deploy the backend to Render (free tier) and publish the extension to the
+  Chrome Web Store
+- A general web-mentions search (beyond LinkedIn) using the same Google
+  Custom Search setup already in place, to supplement the currently-mocked
+  Reddit data with something genuinely live
+- Push notifications when a cached "known scam" company reappears in a new
+  pasted offer
 
 ## Notes on the scoring model
 
@@ -202,3 +228,9 @@ The score is rule-based and additive (see `utils/scorer.js`), not a trained
 ML model. This is a deliberate choice: it's fully explainable — you can
 show exactly why any offer got flagged, which is both more trustworthy for
 users and easier to defend in an interview than a black-box classifier.
+
+## Suggestions welcome
+
+This is a personal/portfolio project, but if you spot a bug, have an idea
+for a better heuristic, or want to add a feature, open an issue or a pull
+request — always happy to hear how this could be improved.
