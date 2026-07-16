@@ -18,52 +18,6 @@
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
 
-.hero {
-  min-height: 92vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 40px 20px;
-  border-bottom: 1px solid var(--border);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(224,152,58,0.08), transparent 60%);
-}
-.hero-inner { max-width: 640px; }
-.hero-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px; letter-spacing: 2px; color: var(--red);
-  margin: 0 0 20px; text-transform: uppercase;
-}
-.hero-headline {
-  font-size: 34px; font-weight: 700; line-height: 1.25; margin: 0 0 16px;
-}
-.hero-sub { font-size: 15px; color: var(--text-muted); margin: 0 0 36px; }
-
-.hero-stat {
-  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-  padding: 24px; margin-bottom: 36px; display: inline-block;
-}
-.hero-stat-num, .hero-stat-percent {
-  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 44px; color: var(--amber);
-}
-.hero-stat-percent { font-size: 28px; }
-.hero-stat-label { display: block; font-size: 12px; color: var(--text-muted); margin-top: 6px; max-width: 320px; }
-
-.hero-tagline { font-size: 18px; color: var(--text); margin: 0 0 28px; line-height: 1.5; }
-.hero-brand { color: var(--amber); font-weight: 700; font-size: 22px; }
-
-.hero-cta {
-  background: var(--amber); color: #1a1200; border: none; padding: 16px 32px;
-  border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-  font-size: 15px; cursor: pointer;
-}
-.hero-cta:hover { filter: brightness(1.08); }
-
-@media (max-width: 560px) {
-  .hero-headline { font-size: 24px; }
-  .hero-stat-num, .hero-stat-percent { font-size: 32px; }
-}
 .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px; }
 
 .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
@@ -203,20 +157,20 @@ ul.list li a { color:var(--amber); text-decoration:none; }
 <body>
 <div class="hero">
   <div class="hero-inner">
-    <p class="hero-eyebrow">EVERY DAY, SOMEONE'S DREAM JOB IS A TRAP</p>
-    <h1 class="hero-headline">Do you know how many people<br/>get scammed by fake job offers<br/>every single day?</h1>
-    <p class="hero-sub">Fake stipends. Fake certificates. Real money, gone. Do you want to be next?</p>
+    <p class="hero-eyebrow d1">EVERY DAY, SOMEONE'S DREAM JOB IS A TRAP</p>
+    <h1 class="hero-line d2">Do you know how many people<br/>get scammed by fake job offers<br/>every single day?</h1>
+    <p class="hero-line dim d3"><span class="num" id="heroCounter">0</span>% of Indian job seekers have already encountered a fraudulent posting</p>
+    <p class="hero-line ask d4">Do you want to be one of them?</p>
 
-    <div class="hero-stat">
-      <span class="hero-stat-num" id="heroCounter">0</span><span class="hero-stat-percent">%</span>
-      <span class="hero-stat-label">of Indian job seekers have already encountered a fraudulent posting</span>
+    <div class="hero-reveal d5">
+      <div class="presents">We protect you from this. Presenting</div>
+      <div class="shield-name">ScamShield</div>
     </div>
 
-    <p class="hero-tagline">We protect you from this.<br/><span class="hero-brand">Presenting ScamShield.</span></p>
-
-    <button class="hero-cta" onclick="document.getElementById('toolSection').scrollIntoView({behavior:'smooth'})">
+    <button class="hero-cta d6" onclick="document.getElementById('toolSection').scrollIntoView({behavior:'smooth'})">
       Protect yourself now ↓
     </button>
+    <p class="hero-scroll-hint d6">scroll down</p>
   </div>
 </div>
 
@@ -319,7 +273,6 @@ ul.list li a { color:var(--amber); text-decoration:none; }
   <p class="footer-note">Backend runs on your own server - your data isn't sent anywhere else. <a href="https://github.com/" target="_blank">View source</a></p>
 </div>
 
-<script>
 <script>
 // Animates the hero stat from 0 to 93 on page load
 (function animateHeroCounter() {
