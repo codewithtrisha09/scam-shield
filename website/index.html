@@ -17,6 +17,53 @@
 }
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+
+.hero {
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(224,152,58,0.08), transparent 60%);
+}
+.hero-inner { max-width: 640px; }
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; letter-spacing: 2px; color: var(--red);
+  margin: 0 0 20px; text-transform: uppercase;
+}
+.hero-headline {
+  font-size: 34px; font-weight: 700; line-height: 1.25; margin: 0 0 16px;
+}
+.hero-sub { font-size: 15px; color: var(--text-muted); margin: 0 0 36px; }
+
+.hero-stat {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; margin-bottom: 36px; display: inline-block;
+}
+.hero-stat-num, .hero-stat-percent {
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 44px; color: var(--amber);
+}
+.hero-stat-percent { font-size: 28px; }
+.hero-stat-label { display: block; font-size: 12px; color: var(--text-muted); margin-top: 6px; max-width: 320px; }
+
+.hero-tagline { font-size: 18px; color: var(--text); margin: 0 0 28px; line-height: 1.5; }
+.hero-brand { color: var(--amber); font-weight: 700; font-size: 22px; }
+
+.hero-cta {
+  background: var(--amber); color: #1a1200; border: none; padding: 16px 32px;
+  border-radius: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 15px; cursor: pointer;
+}
+.hero-cta:hover { filter: brightness(1.08); }
+
+@media (max-width: 560px) {
+  .hero-headline { font-size: 24px; }
+  .hero-stat-num, .hero-stat-percent { font-size: 32px; }
+}
 .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px; }
 
 .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
@@ -91,10 +138,89 @@ ul.list li a { color:var(--amber); text-decoration:none; }
 .score-badge { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:700; }
 .footer-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:24px; }
 .footer-note a { color:var(--amber); }
+
+/* --- HERO --- */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  background:
+    radial-gradient(ellipse 900px 500px at 50% 0%, rgba(224,152,58,0.10), transparent 70%),
+    radial-gradient(ellipse 700px 400px at 20% 100%, rgba(240,85,74,0.06), transparent 70%),
+    var(--bg);
+  overflow: hidden;
+}
+.hero-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:3px;
+  color: var(--text-muted); text-transform:uppercase; margin-bottom:20px;
+  opacity:0; animation: reveal 0.8s ease forwards;
+}
+.hero-line {
+  font-size: clamp(22px, 5vw, 40px); font-weight:700; line-height:1.25; max-width:780px;
+  margin: 0 0 8px;
+  opacity:0; animation: reveal 0.8s ease forwards;
+}
+.hero-line .num { color: var(--red); font-family:'JetBrains Mono',monospace; }
+.hero-line.dim { color: var(--text-muted); font-weight:500; font-size:clamp(16px,3vw,20px); }
+.hero-line.ask { color: var(--text); margin-top:18px; }
+.hero-reveal {
+  margin-top: 32px; opacity:0; animation: reveal 1s ease forwards;
+}
+.hero-reveal .presents {
+  font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-muted);
+  text-transform:uppercase; margin-bottom:10px;
+}
+.hero-reveal .shield-name {
+  font-size: clamp(38px, 8vw, 64px); font-weight:700; letter-spacing:-1px;
+  background: linear-gradient(135deg, var(--amber), #f4c26b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-cta {
+  margin-top: 28px; opacity:0; animation: reveal 0.8s ease forwards;
+  display:inline-flex; align-items:center; gap:8px;
+  background: var(--amber); color:#1a1200; border:none; text-decoration:none;
+  padding: 14px 28px; border-radius: 999px; font-weight:700; font-size:15px;
+  cursor:pointer;
+}
+.hero-cta:hover { filter: brightness(1.08); }
+.hero-scroll-hint {
+  position:absolute; bottom:24px; font-size:11px; color:var(--text-muted);
+  font-family:'JetBrains Mono',monospace; opacity:0; animation: reveal 1s ease forwards;
+}
+
+.d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.6s; } .d3 { animation-delay: 1.1s; }
+.d4 { animation-delay: 1.7s; } .d5 { animation-delay: 2.3s; } .d6 { animation-delay: 2.8s; }
+
+@keyframes reveal { to { opacity:1; transform:translateY(0); } from { transform:translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow, .hero-line, .hero-reveal, .hero-cta, .hero-scroll-hint { animation: none !important; opacity:1 !important; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="hero">
+  <div class="hero-inner">
+    <p class="hero-eyebrow">EVERY DAY, SOMEONE'S DREAM JOB IS A TRAP</p>
+    <h1 class="hero-headline">Do you know how many people<br/>get scammed by fake job offers<br/>every single day?</h1>
+    <p class="hero-sub">Fake stipends. Fake certificates. Real money, gone. Do you want to be next?</p>
+
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="heroCounter">0</span><span class="hero-stat-percent">%</span>
+      <span class="hero-stat-label">of Indian job seekers have already encountered a fraudulent posting</span>
+    </div>
+
+    <p class="hero-tagline">We protect you from this.<br/><span class="hero-brand">Presenting ScamShield.</span></p>
+
+    <button class="hero-cta" onclick="document.getElementById('toolSection').scrollIntoView({behavior:'smooth'})">
+      Protect yourself now ↓
+    </button>
+  </div>
+</div>
+
+<div class="wrap" id="toolSection">
 
   <header class="topbar">
     <div class="brand">
@@ -194,6 +320,24 @@ ul.list li a { color:var(--amber); text-decoration:none; }
 </div>
 
 <script>
+<script>
+// Animates the hero stat from 0 to 93 on page load
+(function animateHeroCounter() {
+  const el = document.getElementById("heroCounter");
+  if (!el) return;
+  const target = 93;
+  const duration = 1400;
+  const start = performance.now();
+
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
 // Same-origin now that the website is served by the same Express backend.
 // window.location.origin means this works both locally (localhost:5000) and
 // once deployed (e.g. https://scamshield-backend.onrender.com) with no code change.
