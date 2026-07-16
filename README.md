@@ -227,7 +227,7 @@ curl -X POST http://localhost:5000/api/analyze \
 The score is rule-based and additive (see `utils/scorer.js`), not a trained
 ML model. This is a deliberate choice: it's fully explainable — you can
 show exactly why any offer got flagged, which is both more trustworthy for
-users and easier to defend in an interview than a black-box classifier.
+users and easier to defend in an interview than a black-box classifier
 
 ## Suggestions welcome
 
