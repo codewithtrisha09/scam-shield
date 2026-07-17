@@ -152,6 +152,7 @@ a { color:var(--amber); }
 
   <h2>A note on data sources</h2>
   <p>Reddit tightened non-commercial API approval mid-project, so <code>redditSearch.js</code> currently returns realistic mock data instead of live results. The real OAuth implementation is preserved in <code>redditSearch.live.js</code> and documented as a one-file swap once access is approved. See the <a href="https://github.com/codewithtrisha09/scam-shield" target="_blank">GitHub repo</a> README for full details.</p>
+  <p>Similarly, the LinkedIn presence check uses Google's Custom Search API, which Google closed to new signups in 2025 and has scheduled for full deprecation by January 1, 2027. Rather than depend on a sunsetting API for a core feature, this check was designed to fail gracefully - if it's unavailable or unconfigured, it's simply skipped and every other signal (regex + Gemini extraction, domain age, community reports) still runs normally.</p>
 
   <h2>Why this matters</h2>
   <p>Recent survey data shows this isn't a niche problem: 93% of Indian job seekers report encountering fraudulent postings, and Gen Z respondents were disproportionately affected - 46% reported losing money to recruitment scams. <a href="https://www.business-standard.com/industry/news/job-scam-fears-indians-ignore-work-opportunities-indeed-report-126070900929_1.html" target="_blank">Source: Indeed survey via Business Standard, July 2026</a></p>
