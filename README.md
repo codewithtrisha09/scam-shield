@@ -83,14 +83,22 @@ strong scam signal. Nothing to configure; gracefully skipped if the
 lookup fails (e.g. for free-mail domains like gmail.com, which aren't
 independently registered).
 
-### 4. LinkedIn presence check (Google Custom Search API, free tier)
+### 4. LinkedIn presence check (Google Custom Search API, optional)
 `utils/linkedinCheck.js` checks whether the company has a findable
 LinkedIn company page, using Google's Custom Search API (not scraping,
 which violates LinkedIn's ToS). Set `GOOGLE_SEARCH_API_KEY` and
 `GOOGLE_SEARCH_ENGINE_ID` in `.env` to enable - get them at
 https://console.cloud.google.com/apis/credentials and
-https://programmablesearchengine.google.com. Free tier: 100 queries/day.
-If unset, this check is just skipped.
+https://programmablesearchengine.google.com.
+
+**Known limitation:** Google closed the Custom Search JSON API to new
+signups in 2025 and has scheduled full deprecation by January 1, 2027.
+Free-tier access (100 queries/day) may not be available for newly created
+projects. Because of this, the feature is treated as fully optional and
+fails gracefully - if it's not configured or Google returns an error, the
+check is just skipped and every other signal still runs normally. This
+was a deliberate choice not to depend on a sunsetting API for a core
+feature, the same reasoning behind mocking the Reddit data layer.
 
 ## Full-stack additions: website, resume analyzer, Docker, CI/CD
 
@@ -227,7 +235,7 @@ curl -X POST http://localhost:5000/api/analyze \
 The score is rule-based and additive (see `utils/scorer.js`), not a trained
 ML model. This is a deliberate choice: it's fully explainable — you can
 show exactly why any offer got flagged, which is both more trustworthy for
-users and easier to defend in an interview than a black-box classifier
+users and easier to defend in an interview than a black-box classifier.
 
 ## Suggestions welcome
 
