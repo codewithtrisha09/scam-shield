@@ -179,4 +179,4 @@ The score is rule-based and additive (see `utils/scorer.js`), not a trained ML m
 ## Suggestions Welcome
 
 This is a personal/portfolio project, but if you spot a bug, have an idea for a better heuristic, or want to add a feature, open an issue or a pull request — always happy to hear how this could be improved.
-```
+
