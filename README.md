@@ -1,4 +1,3 @@
-```markdown
 # ScamShield
 
 A full-stack scam-detection tool built for students navigating the job and internship hunt. ScamShield combines a Chrome extension and a companion website to flag common red flags in job offers — missing stipends, free-email domains posing as official HR, upfront fee requests, suspiciously new domains — while also offering an AI-powered resume-to-job-description matcher.
