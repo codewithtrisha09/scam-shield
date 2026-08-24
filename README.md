@@ -561,8 +561,6 @@ Users should independently verify companies and opportunities through official s
 
 ## License
 
-## License
-
 Copyright (c) 2026 Trisha Shetty. All rights reserved.
 
 ScamShield is a **proprietary project**. The source code is publicly available for viewing and educational reference, but it may not be copied, reproduced, redistributed, modified, republished, or used in another project without explicit written permission from the author.
