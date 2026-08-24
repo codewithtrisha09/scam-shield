@@ -561,7 +561,22 @@ Users should independently verify companies and opportunities through official s
 
 ## License
 
-No license has been added yet. This is currently a personal/portfolio project.
+## License
+
+Copyright (c) 2026 Trisha Shetty. All rights reserved.
+
+ScamShield is a **proprietary project**. The source code is publicly available for viewing and educational reference, but it may not be copied, reproduced, redistributed, modified, republished, or used in another project without explicit written permission from the author.
+
+You may view and study the project for personal, educational, and portfolio purposes.
+
+Any permitted use of substantial portions of this project must include clear attribution:
+
+> ScamShield — Created by Trisha Shetty  
+> GitHub: https://github.com/codewithtrisha09
+
+For permission to use, modify, distribute, or commercially use this project, please contact the author.
+
+**ALL RIGHTS RESERVED.**
 
 ---
 
